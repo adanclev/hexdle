@@ -46,7 +46,7 @@ export const Tile = ({ hexDigit, index, onModal, status }: Props) => {
 
     return (
         <div
-            className={`flex items-center justify-center border-solid border-2 ${colorClass} h-full w-full ${animation}`}
+            className={`flex items-center justify-center border-solid border-2 select-none ${colorClass} h-full w-full ${animation}`}
         >
             <p
                 className="text-[24px] md:text-[28px] dark:text-primary-dark"

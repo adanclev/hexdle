@@ -205,7 +205,6 @@
 
 html {
     font-family: "Nunito", sans-serif;
-    user-select: none;
     touch-action: manipulation;
     @apply bg-light-100 dark:bg-dark-100;
 }
@@ -240,6 +239,16 @@ html {
     @variant dark {
         @apply bg-dark-400 active:bg-black/20;
     }
+}
+
+.input-log {
+    @apply border-2 rounded-sm border-light-300 focus:outline-light-400 p-2;
+    @apply text-[16px] md:text-[14px];
+
+    @variant dark {
+        @apply border-dark-300 focus:outline-dark-400;
+    }
+    
 }
 
 .shine-title {

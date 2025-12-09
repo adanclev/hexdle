@@ -3,7 +3,7 @@ import type { HexData } from "@/features/game/types"
 import { loadGameStateFromLocalStorage, loadGameStatsFromLocalStorage, saveGameStatsToLocalStorage, saveGameStateToLocalStorage } from "@/lib/localStorage"
 import type { StoredGameState, Message, GameStatus, GameStats } from "@/types"
 import { useEffect, useState } from "react"
-import { todayToString  } from "@/lib/getGameInfo"
+import { getGameNumber, todayToString } from "@/lib/getGameInfo"
 import { GameContext } from "@/context/GameObjectContext"
 
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
@@ -25,7 +25,25 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     const [gameStats, setGameStats] = useState<GameStats>(() => {
         const storedGameStats = loadGameStatsFromLocalStorage()
 
-        if (storedGameStats) return storedGameStats
+        if (storedGameStats) {
+            if (gameContext?.lastPlayed) {
+                const todayStr = todayToString()
+                const userLastPlayedGameNumber = getGameNumber(gameContext.lastPlayed)
+                const todayGameNumber = getGameNumber(todayStr)
+                const sameGameNumber = userLastPlayedGameNumber === todayGameNumber
+                const continuedStreak = userLastPlayedGameNumber === (todayGameNumber - 1)
+
+                const newCurrentStreak = continuedStreak
+                    ? storedGameStats.currentStreak
+                    : 0
+
+                return {
+                    ...storedGameStats,
+                    currentStreak: sameGameNumber ? storedGameStats.currentStreak : newCurrentStreak
+                }
+            }
+            return storedGameStats
+        }
 
         return defaultGameStats
     })
@@ -74,7 +92,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     }
 
     const updateGameContext = (
-        currentGuesses: HexData[], 
+        currentGuesses: HexData[],
         status: GameStatus
     ) => {
         const todayStr = todayToString()
@@ -88,13 +106,13 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         }))
     }
 
-    const updateGameStats = (newStats : GameStats) => {
+    const updateGameStats = (newStats: GameStats) => {
         if (!newStats) return
         setGameStats(newStats)
     }
 
     return (
-        <GameContext.Provider value={{ gameContext, gameStats,message, toggleTheme, toggleDifficult, updateMessage, updateGameContext, updateGameStats }}>
+        <GameContext.Provider value={{ gameContext, gameStats, message, toggleTheme, toggleDifficult, updateMessage, updateGameContext, updateGameStats }}>
             {children}
         </GameContext.Provider>
     )
