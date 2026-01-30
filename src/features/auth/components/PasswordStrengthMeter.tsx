@@ -8,7 +8,6 @@ interface Props {
 
 export const PasswordStrengthMeter = ({ text }: Props) => {
     const level = useMemo(() => {
-        console.log("Memo")
         return text ? passwordStrength(text) : 0
     }, [text])
 

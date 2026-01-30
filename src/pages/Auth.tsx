@@ -23,7 +23,6 @@ export const Auth = () => {
     const [authView, setAuthView] = useState<ViewType>(VIEWS.SIGN_IN);
 
     useEffect(() => {
-        console.log("authView", authView)
         setAuthView(view as ViewType);
     }, [view])
 

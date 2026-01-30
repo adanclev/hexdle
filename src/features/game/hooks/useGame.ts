@@ -63,10 +63,23 @@ export const useGame = (answer: Color) => {
         return { loadedGuesses, isCorrect }
     }
 
+    const hasNoNullCharacters = (
+        chars: HexDigit[]
+    ): chars is { character: Digit }[] =>
+        chars.every(c => c.character !== null);
+
     function checkGuess(currentGuess: HexData) {
         const { hex: answerHex, characters: answerChars } = gameState.answer
         const { hex: currentHex, characters: currentChars } = currentGuess
         const step = gameContext.hardMode ? 2 : 1
+
+        if (!hasNoNullCharacters(answerChars) || !hasNoNullCharacters(currentChars)) {
+            return {
+                lastGuess: initialGuess,
+                isCorrect: false,
+                isInvalid: true,
+            }
+        }
 
         const isCorrect = currentHex === answerHex
         const feedback = new Array(6).fill(STATUSES.CHARS.MATCH)
@@ -106,7 +119,7 @@ export const useGame = (answer: Color) => {
             }))
         }
 
-        return { lastGuess: newCurrent, isCorrect }
+        return { lastGuess: newCurrent, isCorrect, isInvalid: false }
     }
 
     function handleNotEnoughDigits(currentStatus: string) {
@@ -150,8 +163,13 @@ export const useGame = (answer: Color) => {
 
         const {
             lastGuess,
-            isCorrect
+            isCorrect,
+            isInvalid,
         } = checkGuess(gameState.currentGuess)
+        if (isInvalid) {
+            handleNotEnoughDigits(STATUSES.GUESS.ERROR ?? '')
+            return;
+        }
         const remainingGuesses = gameState.remainingGuesses - 1
         const isGameOver = isCorrect || remainingGuesses === 0
 

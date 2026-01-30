@@ -17,7 +17,6 @@ export const TileView = ({ children, state, color, delay=0, animation='animate-i
     useEffect(() => {
         if (!animation) {
             setShowColor(state === 'tile-submitted');
-            console.log("null")
             return;
         }
 

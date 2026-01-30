@@ -7,7 +7,7 @@ import { LoadingTile } from "@/features/auth/components/LoadingTile";
 import type { ViewType } from '@/types';
 import { VIEWS } from "@/constants";
 import { SupabaseClient } from "@supabase/supabase-js";
-import {Navigate, useNavigate} from "react-router";
+import { useNavigate } from "react-router";
 
 type ShowPwdState = {
     pwd: boolean;
@@ -30,8 +30,7 @@ export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
         reset,
         formState: { errors },
     } = useForm<AuthData>({
-        resolver: yupResolver(schema),
-        defaultValues: { view: authView }
+        resolver: yupResolver(schema)
     });
     const [showPwd, setShowPwd] = useState<ShowPwdState>({
         pwd: false,
@@ -39,50 +38,50 @@ export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
     });
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
     const navigate = useNavigate()
 
     const onSubmit = async (data: AuthData) => {
         setError('')
         setLoading(true)
 
-        switch (authView) {
-            case VIEWS.SIGN_IN: {
-                const { error: signInError } =
-                    await supabaseClient.auth.signInWithPassword({
-                        email: data.email,
-                        password: data.password,
-                    })
-                if (signInError) {
-                    setError(signInError.message)
-                } else {
-                    return <Navigate to="/" />
-                }
-                break
-            }
-            case VIEWS.SIGN_UP: {
-                const {
-                    data: { user: signUpUser, session: signUpSession },
-                    error: signUpError,
-                } = await supabaseClient.auth.signUp({
+        try {
+            if (authView === VIEWS.SIGN_IN) {
+                const {error} = await supabaseClient.auth.signInWithPassword({
                     email: data.email,
                     password: data.password,
-                    options: {
-                        data: {
-                            display_name: data?.name,
-                        },
-                    },
                 });
-                if (signUpError) setError(signUpError.message)
 
-                if (signUpUser && signUpSession) {
-                    setMessage('Signup successfully')
-                    return <Navigate to="/" />
+                if (error) {
+                    setError(error.message);
+                    return;
                 }
-                break
+
+                navigate("/");
             }
+
+            if (authView === VIEWS.SIGN_UP) {
+                const registerData = data as RegisterFormData;
+                const {data: signUpData, error} =
+                    await supabaseClient.auth.signUp({
+                        email: data.email,
+                        password: data.password,
+                        options: {
+                            data: {display_name: registerData.name},
+                        },
+                    });
+
+                if (error) {
+                    setError(error.message);
+                    return;
+                }
+
+                if (signUpData.user) {
+                    navigate("/");
+                }
+            }
+        } finally {
+            setLoading(false);
         }
-        setLoading(false)
     }
 
     const handleAuthMode = () => {
@@ -96,7 +95,7 @@ export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
     const password = watch('password')
 
     useEffect(() => {
-        reset({ view: authView })
+        reset()
     }, [authView, reset])
 
     return (
@@ -209,8 +208,6 @@ export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
                     New here? <span className='underline cursor-pointer' onClick={handleAuthMode}>Create an account</span>
                 </p>
             }
-
-            {message && <p>{message}</p>}
             {error && <p>{error}</p>}
         </main>
     )

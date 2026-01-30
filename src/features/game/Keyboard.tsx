@@ -15,7 +15,6 @@ interface Props {
 
 export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
     const pressedKeys = useRef<Set<string>>(new Set())
-    console.log("refresh keyboard component");
     useEffect(() => {
         if (!isModalVisible) {
             window.addEventListener('keydown', handleKeyDown)

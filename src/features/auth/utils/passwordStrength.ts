@@ -38,7 +38,6 @@ function calculateEntropy(flags: number, l: number): number {
 }
 
 export function passwordStrength(value: string): number {
-    console.log("Memo")
     const n = value.length;
     const flags =
         (/[a-z]/.test(value) ? 1 : 0) | // lower - 0001

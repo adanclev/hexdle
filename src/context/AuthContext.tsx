@@ -14,7 +14,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const useSession = () => {
     const context = useContext(AuthContext);
-    console.log('useSession', context);
+    // console.log('useSession', context);
     if (!context) {
         throw new Error("useSession must be used within a SessionProvider");
     }
@@ -35,8 +35,6 @@ export const AuthProvider = ({ children }: Props) => {
                 setUser(session?.user ?? null)
                 setLoading(true)
             })
-
-        console.log(session)
 
         // Escuchar cambios (login, logout, token refresh)
         const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
