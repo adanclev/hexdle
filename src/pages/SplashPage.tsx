@@ -1,7 +1,8 @@
 import { GAME_STATUSES } from '@/constants'
 import { getGameInfo, getGameSubtitle } from '@/lib/getGameInfo'
 import type { GameStatus } from '@/types'
-// import { useNavigate } from 'react-router'
+import {useNavigate} from 'react-router'
+import { useSession } from '@/context/AuthContext';
 
 interface Props {
     onClickPlay?: () => void,
@@ -10,8 +11,9 @@ interface Props {
 }
 
 export const SplashPage = ({ onClickPlay, status, guesses }: Props) => {
+    const { session } = useSession();
     const { gameNumber, todayToString } = getGameInfo()
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
     const isGameOver = status && status !== GAME_STATUSES.IN_PROGRESS
     const subtitle = getGameSubtitle({status, guesses})
     const textButton = isGameOver
@@ -28,12 +30,12 @@ export const SplashPage = ({ onClickPlay, status, guesses }: Props) => {
             </h2>
 
             <div className="flex flex-col items-center justify-evenly md:flex-row gap-4 my-10 w-full xl:w-1/2">
-                {/* <button
+                {!session && <button
                     className="btn btn-splash-page border-[1.6px] border-solid border-light-400 dark:border-dark-400"
-                    onClick={() => navigate("/log")}
+                    onClick={() => navigate("/auth/sign_in")}
                 >
                     Log in
-                </button> */}
+                </button>}
                 <button
                     className="btn btn-splash-page bg-light-300 dark:bg-dark-300"
                     onClick={onClickPlay}

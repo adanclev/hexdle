@@ -7,7 +7,7 @@ interface Props {
 export const Key = ({ keyName, special, onPress }: Props) => {
     return (
         <button
-            className={`flex items-center justify-center h-12 md:h-[56px] key-btn ${special ? "w-fit px-[10px] md:w-[80px]" : "px-[10px] w-fit md:w-[40px]"}`}
+            className={`key-btn ${special ? "md:w-[80px] capitalize" : "md:w-[40px] uppercase"}`}
             onClick={(e) => {
                 onPress(keyName)
                 e.currentTarget.blur()

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { colorClasses, defaultTileDelay, STATUSES } from "@/features/game/constants";
 import type { HexDigit } from "@/features/game/types";
+import { TileView } from "@/components/TileView/TileView.tsx";
 
 interface Props {
     hexDigit: HexDigit,
@@ -10,49 +11,47 @@ interface Props {
 }
 
 export const Tile = ({ hexDigit, index, onModal, status }: Props) => {
-    const [showColor, setShowColor] = useState<boolean>(false)
     const [playWinAnimation, setPlayWinAnimation] = useState<boolean>(false)
-    const ms = onModal ? 350 : index * defaultTileDelay
-
-    useEffect(() => {
-        if (hexDigit.color && hexDigit.status) {
-            const timer = setTimeout(() => {
-                setShowColor(true)
-            }, ms);
-
-            return () => clearTimeout(timer)
-        }
-    }, [hexDigit.color, hexDigit.status])
+    const milliseconds = onModal ? 350 : index * defaultTileDelay
 
     useEffect(() => {
         if (status === STATUSES.GUESS.CORRECT) {
             const delay = setTimeout(() => {
                 setPlayWinAnimation(true)
-            }, ms + 2000)
+            }, milliseconds + 2000)
 
             return () => clearTimeout(delay)
         }
     }, [status])
 
-    const colorClass =
-        showColor && hexDigit.color && hexDigit.status
-            ? `${colorClasses[hexDigit.color][hexDigit.status]}`
-            : hexDigit.character
-                ? 'animate-pop-scale empty-tile'
-                : 'border-light-300 dark:border-dark-300'
-    const animation = playWinAnimation
+    const color = hexDigit.color && hexDigit.status
+        ? colorClasses[hexDigit.color][hexDigit.status]
+        : null
+
+    const state = !hexDigit.character
+        ? 'tile-empty'
+        : color ? 'tile-submitted' : 'tile-filled'
+
+    const animate = playWinAnimation
         ? 'animate-bounce'
-        : showColor ? 'animate-flip dark:animate-flip-dark' : ''
+        : state === 'tile-filled'
+            ? 'animate-pop-scale'
+            : color
+                ? 'animate-flip-in'
+                : 'animate-idle'
 
     return (
-        <div
-            className={`flex items-center justify-center border-solid border-2 select-none ${colorClass} h-full w-full ${animation}`}
+        <TileView
+            delay={milliseconds}
+            state={state}
+            color={color}
+            animation={animate}
         >
             <p
-                className="text-[24px] md:text-[28px] dark:text-primary-dark"
+                className="text-[24px] md:text-[28px]"
             >
                 {hexDigit.character ?? ''}
             </p>
-        </div>
+        </TileView>
     )
 }

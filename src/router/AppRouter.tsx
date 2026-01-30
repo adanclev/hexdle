@@ -1,12 +1,12 @@
 import { MainPage } from '@/pages/MainPage'
-import { SignIn } from "@/features/auth/SignIn"
+import { Auth } from '@/pages/Auth.tsx'
 import { Routes, Route } from 'react-router'
 
 export const AppRouter = () => {
     return (
         <Routes>
-            <Route path='/' element={<MainPage />} />
-            <Route path='/log' element={<SignIn />} />
+            <Route index element={<MainPage />} />
+            <Route path='/auth/:view' element={<Auth />} />
         </Routes>
     )
 }

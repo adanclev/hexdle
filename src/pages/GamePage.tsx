@@ -1,9 +1,7 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
 import { GameInstructions } from "@/components/modals/GameInstructions";
 import { GameOver } from "@/components/modals/GameOver";
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
-import { Modal } from "@/components/Modal"
+import { Header, Footer, Modal } from "@/components"
 import { Stats } from "@/components/modals/Stats";
 import { Tooltip } from "@/components/Tooltip"
 import { GameGrid } from "@/features/game/GameGrid"
@@ -13,12 +11,13 @@ import { getDailyRandomElement } from "@/features/game/lib/randomUtils"
 import { MAX_DIGITS, defaultTileDelay, MSG_CODE, MSG_TYPE, MAX_GUESSES } from "@/features/game/constants"
 import { GameContext } from "@/context/GameObjectContext";
 import { GAME_STATUSES } from "@/constants";
-import { getFeedbackWord } from "@/lib/getGameInfo";
+import { getFeedbackWord, todayToString } from "@/lib/getGameInfo";
 
 export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
-    const { updateGuess, gameState, hasGameJustFinished } = useGame(getDailyRandomElement())
+    const todayStr: string = todayToString();
+    const dailyColor = useMemo(() => getDailyRandomElement(todayStr), [todayStr]);
+    const { updateGuess, gameState, hasGameJustFinished } = useGame(dailyColor)
     const { gameContext, message, updateMessage } = useContext(GameContext)
-
     const [showModal, setShowModal] = useState<boolean>(gameContext?.status !== GAME_STATUSES.IN_PROGRESS);
     const [isClosing, setIsClosing] = useState<boolean>(false);
     const [modalContent, setModalContent] = useState<React.ReactNode>(
@@ -27,15 +26,16 @@ export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
             : <GameInstructions />
     );
     const [showTooltip, setShowTooltip] = useState<boolean>(false);
+    const animationDurationMs: number = 500
 
     useEffect(() => {
-        const ms = (MAX_DIGITS + 1) * defaultTileDelay
+        const ms = animationDurationMs + defaultTileDelay * (MAX_DIGITS - 1);
         const { isGameOver, isCorrect, remainingGuesses, answer, guesses } = gameState;
 
         if (isGameOver && hasGameJustFinished) {
             setTimeout(() => {
                 openModalWith(<GameOver answer={answer} guesses={guesses} won={isCorrect} hardMode={gameContext.hardMode} />)
-            }, ms * (isCorrect ? 2 : 1))
+            }, ms * (isCorrect ? 3 : 1))
         }
 
         if (isGameOver) {

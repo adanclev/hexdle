@@ -40,7 +40,6 @@ export const GameInstructions = () => {
                     )
                 })}
             </article>
-
         </section>
     );
 }

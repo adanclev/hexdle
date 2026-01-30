@@ -1,7 +1,7 @@
 {
   "name": "hexdle",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,13 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@supabase/supabase-js": "^2.87.1",
     "@tailwindcss/vite": "^4.1.8",
     "@types/node": "^22.15.29",
     "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.71.1",
     "react-router": "^7.6.1",
-    "tailwindcss": "^4.1.8"
+    "tailwindcss": "^4.1.8",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

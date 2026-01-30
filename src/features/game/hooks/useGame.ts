@@ -1,9 +1,10 @@
-import type { GameState, Color, HexData, HexDigit } from '@/features/game/types'
+import type { GameState, Color, HexData, HexDigit, AllowedKey } from '@/features/game/types'
 import { useContext, useEffect, useState } from 'react'
-import { initialGuess, MAX_DIGITS, STATUSES, DIGITS, MAX_GUESSES, MSG_TYPE, MSG_CODE } from '@/features/game/constants'
+import { initialGuess, MAX_DIGITS, STATUSES, MAX_GUESSES, MSG_TYPE, MSG_CODE } from '@/features/game/constants'
+import { DIGITS } from "@/constants";
 import { GameContext } from '@/context/GameObjectContext'
 import { GAME_STATUSES } from '@/constants'
-import type { GameStats } from '@/types'
+import type {Digit, GameStats} from '@/types'
 
 const initialState = (answer: Color): GameState => ({
     answer,
@@ -40,13 +41,13 @@ export const useGame = (answer: Color) => {
 
     function loadState(savedGuesses: string[]) {
         const loadedGuesses: HexData[] = []
-        let isCorrect = false
+        let isCorrect: boolean = false
 
         for (const guess of savedGuesses) {
             const charsCopy = initialGuess.characters.map(c => ({ ...c }))
             const characters: HexDigit[] = guess.split('').map((char, index) => ({
                 ...charsCopy[index],
-                character: char
+                character: char as Digit
             }));
 
             const newGuess: HexData = {
@@ -72,12 +73,12 @@ export const useGame = (answer: Color) => {
 
         if (!isCorrect) {
             for (let i = 0; i < currentChars.length; i += step) {
-                const idxCurrentChar = DIGITS.indexOf(currentChars[i].character ?? '')
-                const idxAnswerChar = DIGITS.indexOf(answerChars[i].character ?? '')
+                const idxCurrentChar = DIGITS.indexOf(currentChars[i].character)
+                const idxAnswerChar = DIGITS.indexOf(answerChars[i].character)
 
                 if (gameContext.hardMode && i + 1 < currentChars.length) {
-                    const idx2CurrentChar = DIGITS.indexOf(currentChars[i + 1].character ?? '')
-                    const idx2AnswerChar = DIGITS.indexOf(answerChars[i + 1].character ?? '')
+                    const idx2CurrentChar = DIGITS.indexOf(currentChars[i + 1].character)
+                    const idx2AnswerChar = DIGITS.indexOf(answerChars[i + 1].character)
                     const diff = (idxCurrentChar ** 2 + idx2CurrentChar) - (idxAnswerChar ** 2 + idx2AnswerChar)
 
                     if (diff === 0) continue
@@ -200,7 +201,7 @@ export const useGame = (answer: Color) => {
         if (hex.length === 0) return;
 
         const newCharacters = characters.map((char, i) =>
-            i === hex.length - 1 ? { ...char, character: '' } : char
+            i === hex.length - 1 ? { ...char, character: null } : char
         )
         const newHex = newCharacters.map((char) => char.character).join('')
 
@@ -213,7 +214,7 @@ export const useGame = (answer: Color) => {
         }));
     }
 
-    function handleDigitInput(key: string) {
+    function handleDigitInput(key: Digit) {
         const { hex, characters } = gameState.currentGuess
 
         if (hex.length >= MAX_DIGITS) return;
@@ -232,15 +233,15 @@ export const useGame = (answer: Color) => {
         }));
     }
 
-    const updateCurrentGuess = (keyPressed: string) => {
+    const updateCurrentGuess = (keyPressed: AllowedKey) => {
         if (gameState.isGameOver) return;
 
-        if (keyPressed === 'ENTER') {
+        if (keyPressed === 'enter') {
             handleEnter()
             return
         }
 
-        if (keyPressed === 'DEL' || keyPressed === 'BACKSPACE') {
+        if (keyPressed === 'del') {
             handleDelete()
             return
         }

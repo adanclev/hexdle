@@ -1,8 +1,10 @@
-import type { GAME_STATUSES } from "@/constants";
+import type { GAME_STATUSES, DIGITS, RGB_COLORS } from "@/constants";
 
 export type GameStatus = typeof GAME_STATUSES[keyof typeof GAME_STATUSES]
+export type Digit = typeof DIGITS[number]
+export type RgbColor = typeof RGB_COLORS[keyof typeof RGB_COLORS]
 
-export interface GuessHistogram {
+export type GuessHistogram = {
   "1": number,
   "2": number,
   "3": number,
@@ -45,4 +47,21 @@ export interface Message {
     type: string,
     text: string,
     code?: string
+}
+
+export type ViewSignIn = 'sign_in'
+export type ViewSignUp = 'sign_up'
+export type ViewMagicLink = 'magic_link'
+export type ViewForgottenPassword = 'forgotten_password'
+export type ViewUpdatePassword = 'update_password'
+
+export type ViewType =
+    | ViewSignIn
+    | ViewSignUp
+    | ViewMagicLink
+    | ViewForgottenPassword
+    | ViewUpdatePassword
+
+export interface ViewsMap {
+    [key: string]: ViewType
 }

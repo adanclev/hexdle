@@ -8,7 +8,7 @@ interface Props {
 
 export const Header = ({ openModalWith }: Props) => {
   return (
-    <header className="border-b-1 border-light-400 dark:border-dark-400 flex justify-between items-center p-4 lg:px-10">
+    <header className="border-b-1 border-b-light-400 dark:border-dark-400 flex justify-between items-center p-4 lg:px-10">
       <div>
         <h1 className="font-tektur text-2xl sm:text-3xl tracking-wider">
           <span className="italic dark:text-primary-dark mr-1">#</span>
