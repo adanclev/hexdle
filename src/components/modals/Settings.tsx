@@ -1,9 +1,13 @@
 import { useContext } from "react"
 import { GameContext } from "@/context/GameObjectContext"
 import { MSG_TYPE, MSG_CODE } from '@/features/game/constants'
+import {useSession} from "@/context/AuthContext";
+import {useNavigate} from "react-router";
 
 export const Settings = () => {
     const { gameContext, toggleTheme, toggleDifficult } = useContext(GameContext)
+    const { session, signOut } = useSession();
+    const navigate = useNavigate();
 
     return (
         <section className="w-full sm:w-[350px] h-fit text-primary-light dark:text-primary-dark">
@@ -15,15 +19,39 @@ export const Settings = () => {
                 <Setting
                     title="Hard Mode"
                     description="Each guess is evaluated in pairs of hexadecimal digits."
-                    isGameStarted={!!gameContext?.status}
-                    flag={gameContext.hardMode}
-                    toggleFunc={toggleDifficult}
-                />
+                >
+                    <ToggleSwitch isGameStarted={!!gameContext?.status} flag={gameContext.hardMode} toggleFunc={toggleDifficult} />
+                </Setting>
                 <Setting
                     title="Dark Mode"
-                    flag={gameContext.darkMode}
-                    toggleFunc={toggleTheme}
-                />
+                >
+                    <ToggleSwitch flag={gameContext.darkMode} toggleFunc={toggleTheme} />
+                </Setting>
+                {session
+                    ? <Setting
+                        title="Log out"
+                    >
+                        <button className="cursor-pointer" onClick={signOut}>
+                            <svg className="size-8 md:size-10" viewBox="0 0 24 24" fill="None">
+                                <path d="M16.5 15V19.5H5.5V5.5H16.5V10M10 12.5H22.5" stroke="currentColor" strokeWidth="1.2"/>
+                                <path d="M20 10L22.5 12.5L20 15" stroke="currentColor" strokeWidth="1.2"/>
+                            </svg>
+                        </button>
+                    </Setting>
+                    : <Setting
+                        title="Track Your Stats"
+                        description="Sign in to save your progress, stats, and personal records."
+                    >
+                        <button className="cursor-pointer" onClick={() => navigate("/auth/sign_in")}>
+                            <svg className="size-8" fill="currentColor" viewBox="0 0 24 24">
+                                <g id="login">
+                                    <path
+                                        d="M24,23H9v-8h2v6h11V3H11v6H9V1h15V23z M14.7,17.7l-1.4-1.4l3.3-3.3H1v-2h15.6l-3.3-3.3l1.4-1.4l5.8,5.7L14.7,17.7z"/>
+                                </g>
+                            </svg>
+                        </button>
+                    </Setting>
+                }
                 {/* <Setting
                     title="High Contrast Mode"
                     description="Lorem ipsum dolor."
@@ -38,19 +66,17 @@ export const Settings = () => {
 interface SettingProps {
     title: string,
     description?: string,
-    isGameStarted?: boolean,
-    flag: boolean,
-    toggleFunc: () => void
+    children: React.ReactNode,
 }
 
-const Setting = ({ title, description, isGameStarted, flag, toggleFunc }: SettingProps) => {
+const Setting = ({ title, description, children }: SettingProps) => {
     return (
         <article className="flex flex-row justify-between items-center gap-8 md:gap-4 p-2 md:p-4">
             <section className="items-center">
                 <h3 className="text-[16px] font-bold">{title}</h3>
                 <p className="text-[12px]">{description ?? ''}</p>
             </section>
-            <ToggleSwitch isGameStarted={isGameStarted} flag={flag} toggleFunc={toggleFunc} />
+            {children}
         </article>
     )
 }
@@ -90,3 +116,5 @@ const ToggleSwitch = ({ isGameStarted, flag, toggleFunc }: SwitchProps) => {
         </div>
     )
 }
+
+

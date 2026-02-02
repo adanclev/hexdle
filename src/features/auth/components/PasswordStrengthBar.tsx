@@ -15,7 +15,6 @@ export const PasswordStrengthBar = ({ digits, strength }: Props) => {
     }
 
     const hexcode = evaluation(strength).toString(16) as Digit;
-    // console.log(strength, hexcode);
     const colorsito = digits[hexcode];
 
     return (

@@ -1,6 +1,5 @@
-import type { Digit } from "@/types";
+import type { StrengthBarDigits } from "@/features/auth/types";
 
-type StrengthBarDigits = Record<Digit, string>;
 export const STRENGTH_BAR_DIGITS: StrengthBarDigits = {
     "0": "red-low",
     "1": "red-low",
