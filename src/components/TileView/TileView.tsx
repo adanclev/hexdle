@@ -10,7 +10,7 @@ interface Props {
     animation?: AnimationState | AnimationState[] | null,
 }
 
-export const TileView = ({ children, state, color, delay=0, animation='animate-idle' }: Props) => {
+export const TileView = ({ children, state, color, delay=0, animation }: Props) => {
     const [animationController, dispatch] = useReducer(animationReducer, { state: "animate-idle" });
     const [showColor, setShowColor] = useState<boolean>(false);
 

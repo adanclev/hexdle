@@ -15,7 +15,7 @@ export const PasswordStrengthBar = ({ digits, strength }: Props) => {
     }
 
     const hexcode = evaluation(strength).toString(16) as Digit;
-    const colorsito = digits[hexcode];
+    const tileColor = digits[hexcode];
 
     return (
         <div className="grid auto-cols-auto grid-flow-col gap-1">
@@ -23,7 +23,7 @@ export const PasswordStrengthBar = ({ digits, strength }: Props) => {
                 <TileView
                     key={digit}
                     state={i < strength ? 'tile-submitted' : 'tile-filled'}
-                    color={colorsito}
+                    color={tileColor}
                     animation={i < strength ? 'animate-flip-in' : null}
                 >
                     <p

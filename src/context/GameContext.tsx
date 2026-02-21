@@ -2,7 +2,11 @@ import {createContext, useContext, useEffect, useMemo, useState} from "react"
 import type {Color, HexData} from "@/features/game/types"
 import type { GameStateCtx, Message, GameStatus, GameStats, GameContextProps } from "@/types"
 import {useSession} from "@/context/AuthContext";
-import { loadGameStateFromLocalStorage, loadGameStatsFromLocalStorage } from "@/lib/localStorage"
+import {
+    loadGameStateFromLocalStorage,
+    loadGameStatsFromLocalStorage,
+    saveGameStateToLocalStorage
+} from "@/lib/localStorage"
 import { defaultGameState, defaultGameStats } from "@/constants"
 import { getGameNumber, todayToString } from "@/lib/getGameInfo"
 import {getGameStateForUser, persistGameState, getStatsForUser, persistStats} from "@/features/game/services/game.service";
@@ -77,7 +81,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         if (authLoading) {
             setGameLoading(true)
             return
-        };
+        }
 
         loadInitialGameState();
         loadGameStats();
@@ -96,7 +100,14 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     }, [gameStateCtx.gameNumber, gameNumber]);
 
     useEffect(() => {
+        if (authLoading) return;
+
         document.documentElement.classList.toggle("dark", gameStateCtx.darkMode);
+        if (!user) {
+            saveGameStateToLocalStorage(gameStateCtx);
+            return;
+        }
+
         const prefs: UserPreferences = {
             darkMode: gameStateCtx.darkMode,
             hardMode: gameStateCtx.hardMode,

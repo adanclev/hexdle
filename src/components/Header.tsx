@@ -11,7 +11,7 @@ export const Header = ({ openModalWith }: Props) => {
   const navigate = useNavigate();
 
   const softReload = () => {
-    navigate("/", { replace: true });
+    navigate("/");
     window.location.reload();
   };
 

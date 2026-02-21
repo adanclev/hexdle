@@ -365,3 +365,7 @@ html {
 .green-low {
     @apply bg-lime-green-tint text-white border-lime-green-tint;
 }
+
+.tile-not-found {
+    @apply bg-[#440044] text-white border-[#440044];
+}
