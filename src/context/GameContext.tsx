@@ -1,65 +1,131 @@
+import {createContext, useContext, useEffect, useMemo, useState} from "react"
+import type {Color, HexData} from "@/features/game/types"
+import type { GameStateCtx, Message, GameStatus, GameStats, GameContextProps } from "@/types"
+import {useSession} from "@/context/AuthContext";
+import {
+    loadGameStateFromLocalStorage,
+    loadGameStatsFromLocalStorage,
+    saveGameStateToLocalStorage
+} from "@/lib/localStorage"
 import { defaultGameState, defaultGameStats } from "@/constants"
-import type { HexData } from "@/features/game/types"
-import { loadGameStateFromLocalStorage, loadGameStatsFromLocalStorage, saveGameStatsToLocalStorage, saveGameStateToLocalStorage } from "@/lib/localStorage"
-import type { StoredGameState, Message, GameStatus, GameStats } from "@/types"
-import { useEffect, useState } from "react"
-import { todayToString  } from "@/lib/getGameInfo"
-import { GameContext } from "@/context/GameObjectContext"
+import { getGameNumber, todayToString } from "@/lib/getGameInfo"
+import {getGameStateForUser, persistGameState, getStatsForUser, persistStats} from "@/features/game/services/game.service";
+import {buildNextGameState} from "@/features/game/domain/game.logic";
+import type {UserPreferences} from "@/features/auth/types";
+
+const GameContext = createContext<GameContextProps>({
+    gameStateCtx: defaultGameState,
+    gameStats: defaultGameStats,
+    message: null,
+    gameLoading: true,
+    toggleTheme: () => { },
+    toggleDifficult: () => { },
+    updateMessage: () => { },
+    updateGameState: () => { },
+    updateGameStats: () => { }
+})
+
+export const useGameState = () => {
+    const context = useContext(GameContext);
+    if (!context) {
+        throw new Error("useGameState must be used within a GameStateProvider")
+    }
+    return context;
+}
 
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
-    const [gameContext, setGameContext] = useState<StoredGameState>(() => {
-        const storedGameState = loadGameStateFromLocalStorage()
+    const todayStr = todayToString()
+    const gameNumber = useMemo(() => getGameNumber(todayStr), [todayStr]);
+    const { user, authLoading, updateUserPrefs } = useSession()
+    const [gameStateCtx, setGameStateCtx] = useState<GameStateCtx>(() => {
+        const darkMode = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        if (storedGameState) return storedGameState;
+        return { ...defaultGameState, darkMode, gameNumber }
+    })
+    const [gameStats, setGameStats] = useState<GameStats>(defaultGameStats)
+    const [message, setMessage] = useState<Message | null>(null);
+    const [gameLoading, setGameLoading] = useState<boolean>(true);
 
-        if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            const newGameState: StoredGameState = {
-                ...defaultGameState,
-                darkMode: true
+    const loadInitialGameState = async () => {
+        setGameLoading(true)
+        const state = user
+            ? await getGameStateForUser(user, gameNumber)
+            : loadGameStateFromLocalStorage()
+
+        if (state) {
+            setGameStateCtx(state)
+        } else if(user) {
+            const { darkMode, hardMode } = user.preferences;
+            setGameStateCtx(prev => ({...prev, darkMode, hardMode }));
+        }
+        setGameLoading(false)
+    }
+
+    const loadGameStats = async () => {
+        const state = user
+            ? await getStatsForUser(user)
+            : loadGameStatsFromLocalStorage()
+
+        if (state) {
+            let currentStreak = 0;
+            if (state.lastPlayedGameNumber) {
+                const diff = gameNumber - state.lastPlayedGameNumber;
+                currentStreak = diff <= 1 ? state.currentStreak : 0;
             }
-            return newGameState
+
+            setGameStats({...state, currentStreak });
         }
-
-        return defaultGameState
-    })
-    const [gameStats, setGameStats] = useState<GameStats>(() => {
-        const storedGameStats = loadGameStatsFromLocalStorage()
-
-        if (storedGameStats) return storedGameStats
-
-        return defaultGameStats
-    })
-
-    const [message, setMessage] = useState<Message | null>(null)
+    }
 
     useEffect(() => {
-        const todayStr = todayToString()
-        if (gameContext?.lastPlayed && gameContext.lastPlayed !== todayStr) {
-            setGameContext(prev => ({
-                ...prev,
-                boardState: [],
+        if (authLoading) {
+            setGameLoading(true)
+            return
+        }
+
+        loadInitialGameState();
+        loadGameStats();
+    }, [authLoading]);
+
+    useEffect(() => {
+        if (gameStateCtx.gameNumber !== gameNumber) {
+            setGameStateCtx(prev => ({
+                ...defaultGameState,
+                hardMode: prev.hardMode,
+                darkMode: prev.darkMode,
                 lastPlayed: todayStr,
-                status: null
-            }))
+                gameNumber,
+            }));
         }
-        document.documentElement.classList.toggle("dark", gameContext.darkMode)
-        saveGameStateToLocalStorage(gameContext)
-    }, [gameContext])
+    }, [gameStateCtx.gameNumber, gameNumber]);
 
     useEffect(() => {
-        if (!gameStats) return
-        saveGameStatsToLocalStorage(gameStats)
-    }, [gameStats])
+        if (authLoading) return;
+
+        document.documentElement.classList.toggle("dark", gameStateCtx.darkMode);
+        if (!user) {
+            saveGameStateToLocalStorage(gameStateCtx);
+            return;
+        }
+
+        const prefs: UserPreferences = {
+            darkMode: gameStateCtx.darkMode,
+            hardMode: gameStateCtx.hardMode,
+        }
+        const persistPrefs = setTimeout(() => updateUserPrefs(prefs), 1500);
+
+        return () => clearTimeout(persistPrefs);
+    }, [gameStateCtx.darkMode, gameStateCtx.hardMode])
 
     const toggleTheme = () => {
-        setGameContext(prev => ({
+        setGameStateCtx(prev => ({
             ...prev,
             darkMode: !prev.darkMode
         }))
     }
 
     const toggleDifficult = () => {
-        setGameContext(prev => ({
+        setGameStateCtx(prev => ({
             ...prev,
             hardMode: !prev.hardMode
         }))
@@ -73,28 +139,33 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         }
     }
 
-    const updateGameContext = (
-        currentGuesses: HexData[], 
-        status: GameStatus
+    const updateGameState = async (
+        guesses: HexData[],
+        status: GameStatus,
+        answer: Color,
     ) => {
-        const todayStr = todayToString()
-        const guesses = currentGuesses.map((guess) => guess.hex)
-
-        setGameContext(prev => ({
-            ...prev,
-            boardState: guesses,
+        const nextState = buildNextGameState(
+            gameStateCtx,
+            guesses,
             status,
-            lastPlayed: todayStr
-        }))
+            todayStr,
+            gameNumber,
+        )
+
+        setGameStateCtx(nextState);
+        const result = await persistGameState(user, nextState, answer);
+        if (result) setGameStateCtx(prev => ({ ...prev, id: result }));
     }
 
-    const updateGameStats = (newStats : GameStats) => {
-        if (!newStats) return
-        setGameStats(newStats)
+    const updateGameStats = async (stats: GameStats) => {
+        if (!stats) return;
+
+        setGameStats(stats);
+        await persistStats(user, stats);
     }
 
     return (
-        <GameContext.Provider value={{ gameContext, gameStats,message, toggleTheme, toggleDifficult, updateMessage, updateGameContext, updateGameStats }}>
+        <GameContext.Provider value={{ gameStateCtx, gameStats, message, gameLoading, toggleTheme, toggleDifficult, updateMessage, updateGameState, updateGameStats }}>
             {children}
         </GameContext.Provider>
     )

@@ -1,15 +1,23 @@
 import { GameInstructions } from "@/components/modals/GameInstructions";
 import { Stats } from "@/components/modals/Stats";
 import { Settings } from "@/components/modals/Settings";
+import {useNavigate} from "react-router";
 
 interface Props {
   openModalWith?: (content: React.ReactNode) => void
 }
 
 export const Header = ({ openModalWith }: Props) => {
+  const navigate = useNavigate();
+
+  const softReload = () => {
+    navigate("/");
+    window.location.reload();
+  };
+
   return (
-    <header className="border-b-1 border-light-400 dark:border-dark-400 flex justify-between items-center p-4 lg:px-10">
-      <div>
+    <header className="border-b-1 border-b-light-400 dark:border-dark-400 flex justify-between items-center p-4 lg:px-10">
+      <div className="cursor-pointer" onClick={softReload}>
         <h1 className="font-tektur text-2xl sm:text-3xl tracking-wider">
           <span className="italic dark:text-primary-dark mr-1">#</span>
           <span className="text-imperial-red-shade dark:text-imperial-red">He</span>

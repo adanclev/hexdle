@@ -1,11 +1,10 @@
+import type { GameStats } from "@/types"
+import {useGameState} from "@/context/GameContext";
 import { StatCard } from "@/components/StatCard"
 import { GuessDistribution } from "@/components/GuessDistribution"
-import { useContext } from "react"
-import { GameContext } from "@/context/GameObjectContext"
-import type { GameStats } from "@/types"
 
 export const Stats = () => {
-    const { gameStats } = useContext(GameContext)
+    const { gameStats } = useGameState();
 
     return (
         <section className="w-full sm:w-[350px] h-fit text-primary-light dark:text-primary-dark">

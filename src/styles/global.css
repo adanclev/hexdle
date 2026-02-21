@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
+/*@tailwind base;
+@tailwind components;*/
 @tailwind utilities;
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -31,14 +31,32 @@
     --color-primary-dark: #fff;
     --color-modal-dark: #495057;
 
-    --animate-shine: shine 8s ease-in-out infinite alternate;
-    --animate-bounce: miniBounce 1.2s ease-in-out;
-    --animate-flip: flip 0.7s ease forwards;
-    --animate-flip-dark: flip-dark 0.7s ease forwards;
-    --animate-pop-scale: pop-scale 0.15s ease forwards;
-    --animate-shake: shake 0.5s ease-in-out;
+    --animate-shine: Shine 8s ease-in-out infinite alternate;
+    --animate-bounce: Bounce 1.2s ease-in-out;
+    --animate-pop-scale: PopScale 0.15s ease forwards;
+    --animate-shake: Shake 0.5s ease-in-out forwards;
+    --animate-flip-in: FlipIn 0.25s ease-in forwards;
+    --animate-flip-out: FlipOut 0.25s ease-in forwards;
 
-    @keyframes shine {
+    @keyframes FlipIn {
+        0% {
+            transform: rotateX(0);
+        }
+        100% {
+            transform: rotateX(-90deg);
+        }
+    }
+
+    @keyframes FlipOut {
+        0% {
+            transform: rotateX(-90deg);
+        }
+        100% {
+            transform: rotateX(0);
+        }
+    }
+
+    @keyframes Shine {
         0% {
             background-position: 0%;
         }
@@ -52,47 +70,7 @@
         }
     }
 
-    @keyframes flip {
-        0% {
-            transform: scaleY(1);
-            background-color: var(--color-light-100);
-            color: var(--color-primary-light);
-            border-color: var(--color-light-400);
-        }
-
-        50% {
-            transform: scaleY(0);
-            background-color: var(--color-light-100);
-            color: var(--color-primary-light);
-            border-color: var(--color-light-400);
-        }
-
-        100% {
-            transform: scaleY(1);
-        }
-    }
-
-    @keyframes flip-dark {
-        0% {
-            transform: scaleY(1);
-            background-color: var(--color-dark-100);
-            color: var(--color-primary-dark);
-            border-color: var(--color-dark-400);
-        }
-
-        50% {
-            transform: scaleY(0);
-            background-color: var(--color-dark-100);
-            color: var(--color-primary-dark);
-            border-color: var(--color-dark-400);
-        }
-
-        100% {
-            transform: scaleY(1);
-        }
-    }
-
-    @keyframes miniBounce {
+    @keyframes Bounce {
         0% {
             transform: translateY(0);
         }
@@ -126,7 +104,7 @@
         }
     }
 
-    @keyframes shake {
+    @keyframes Shake {
         0% {
             transform: translateX(0);
         }
@@ -160,7 +138,7 @@
         }
     }
 
-    @keyframes pop-scale {
+    @keyframes PopScale {
         0% {
             transform: scale(1.15);
         }
@@ -205,9 +183,8 @@
 
 html {
     font-family: "Nunito", sans-serif;
-    user-select: none;
     touch-action: manipulation;
-    @apply bg-light-100 dark:bg-dark-100;
+    @apply bg-light-100 text-primary-light  dark:bg-dark-100 dark:text-primary-dark;
 }
 
 .btn {
@@ -216,12 +193,14 @@ html {
     @apply active:bg-light-400 active:text-light-100;
 
     @variant dark {
-        @apply hover:bg-dark-400 hover:text-dark-100;
-        @apply active:bg-dark-400 active:text-dark-100;
+        @apply hover:bg-dark-400 active:bg-dark-400;
     }
 }
 
 .btn-splash-page {
+    /*@apply cursor-pointer select-none;*/
+    /*@apply duration-500 transition-colors hover:text-light-100 hover:bg-light-400;*/
+    /*@apply active:bg-light-400 active:text-light-100;*/
     @apply py-2 rounded-full text-xl md:text-2xl w-50;
 }
 
@@ -233,13 +212,67 @@ html {
     }
 }
 
+.tile {
+    @apply flex items-center justify-center h-full w-full;
+    @apply border-solid border-2 select-none;
+}
+
+.tile p {
+    @apply uppercase;
+    @variant dark {
+        @apply text-primary-dark;
+    }
+}
+
+.tile-empty {
+    @apply text-primary border-light-300;
+
+    @variant dark {
+        @apply border-dark-300;
+    }
+}
+
+.tile-filled, .tile-submitted {
+    @apply text-primary border-light-400;
+
+    @variant dark {
+        @apply border-dark-400;
+    }
+}
+
 .key-btn {
+    @apply flex items-center justify-center h-12 w-fit md:h-[56px] px-[10px];
     @apply bg-light-400 select-none cursor-pointer rounded-md;
     @apply active:bg-black/50;
 
     @variant dark {
         @apply bg-dark-400 active:bg-black/20;
     }
+}
+
+.fieldset-form {
+    @apply flex flex-col;
+}
+
+.input-form {
+    @apply border-[1.5px] rounded-sm transition border-light-300 focus:border-light-400 focus:outline-hidden p-2 mt-2;
+    @apply text-base;
+
+    @variant dark {
+        @apply border-dark-300 focus:border-dark-400;
+    }
+}
+
+.input-form.invalid {
+    @apply border-imperial-red;
+}
+
+.label-form {
+    @apply font-bold text-base;
+}
+
+.idle {
+
 }
 
 .shine-title {
@@ -252,27 +285,49 @@ html {
             var(--color-byzantine-blue) 65%,
             var(--color-lime-green) 85%);
 
-    @variant dark {
-        background: linear-gradient(110deg,
-                var(--color-primary-dark) 0%,
-                var(--color-primary-dark) 38%,
-                #fdfdfd 40%,
-                var(--color-imperial-red) 55%,
-                var(--color-byzantine-blue) 65%,
-                var(--color-lime-green) 85%);
-    }
+    /*@variant dark {*/
+    /*    background: linear-gradient(110deg,*/
+    /*            var(--color-primary-dark) 0%,*/
+    /*            var(--color-primary-dark) 38%,*/
+    /*            #fdfdfd 40%,*/
+    /*            var(--color-imperial-red) 55%,*/
+    /*            var(--color-byzantine-blue) 65%,*/
+    /*            var(--color-lime-green) 85%);*/
+    /*}*/
 
     background-size: 250%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
-.empty-tile {
-    @apply text-primary border-light-400;
+.divider {
+    /* @apply border border-light-300 dark:border-dark-100; */
+    @apply block text-center relative w-full text-light-400 dark:text-dark-400;
+}
 
-    @variant dark {
-        @apply border-dark-400;
-    }
+.divider::before,
+.divider::after {
+    content: '';
+    display: inline-block;
+    height: 0px;
+    width: calc(50% - 1em);
+    top: 50%;
+    position: absolute;
+    @apply border-b-1 ;
+}
+
+.divider span {
+    @apply inline-block text-lg text-primary-light dark:text-primary-dark;
+}
+
+.divider::before {
+    left: 0px;
+    margin-right: 0.5em;
+}
+
+.divider::after {
+    right: 0px;
+    margin-left: 0.5em;
 }
 
 .red-match {
@@ -309,4 +364,8 @@ html {
 
 .green-low {
     @apply bg-lime-green-tint text-white border-lime-green-tint;
+}
+
+.tile-not-found {
+    @apply bg-[#440044] text-white border-[#440044];
 }

@@ -1,25 +1,25 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useGameState } from "@/context/GameContext";
+import { Header, Footer, Modal, Tooltip } from "@/components"
 import { GameInstructions } from "@/components/modals/GameInstructions";
 import { GameOver } from "@/components/modals/GameOver";
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
-import { Modal } from "@/components/Modal"
 import { Stats } from "@/components/modals/Stats";
-import { Tooltip } from "@/components/Tooltip"
-import { GameGrid } from "@/features/game/GameGrid"
-import { Keyboard } from "@/features/game/Keyboard";
+import { GameGrid, Keyboard } from "@/features/game"
 import { useGame } from "@/features/game/hooks/useGame";
-import { getDailyRandomElement } from "@/features/game/lib/randomUtils"
 import { MAX_DIGITS, defaultTileDelay, MSG_CODE, MSG_TYPE, MAX_GUESSES } from "@/features/game/constants"
-import { GameContext } from "@/context/GameObjectContext";
 import { GAME_STATUSES } from "@/constants";
-import { getFeedbackWord } from "@/lib/getGameInfo";
+import { getDailyRandomElement } from "@/features/game/lib/randomUtils"
+import { getFeedbackWord, todayToString } from "@/lib/getGameInfo";
 
-export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
-    const { updateGuess, gameState, hasGameJustFinished } = useGame(getDailyRandomElement())
-    const { gameContext, message, updateMessage } = useContext(GameContext)
-
-    const [showModal, setShowModal] = useState<boolean>(gameContext?.status !== GAME_STATUSES.IN_PROGRESS);
+export const Game = () => {
+    const todayStr: string = todayToString();
+    const dailyColor = useMemo(() => getDailyRandomElement(todayStr), [todayStr]);
+    const { gameStateCtx, message, updateMessage, gameLoading } = useGameState()
+    const { updateGuess, gameState, hasGameJustFinished } = useGame(dailyColor)
+    const hasGameEnded = gameStateCtx.status
+        ? gameStateCtx.status !== GAME_STATUSES.IN_PROGRESS
+        : false
+    const [showModal, setShowModal] = useState<boolean>(hasGameEnded);
     const [isClosing, setIsClosing] = useState<boolean>(false);
     const [modalContent, setModalContent] = useState<React.ReactNode>(
         hasGameEnded
@@ -27,15 +27,16 @@ export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
             : <GameInstructions />
     );
     const [showTooltip, setShowTooltip] = useState<boolean>(false);
+    const animationDurationMs: number = 500
 
     useEffect(() => {
-        const ms = (MAX_DIGITS + 1) * defaultTileDelay
+        const ms = animationDurationMs + defaultTileDelay * (MAX_DIGITS - 1);
         const { isGameOver, isCorrect, remainingGuesses, answer, guesses } = gameState;
 
         if (isGameOver && hasGameJustFinished) {
             setTimeout(() => {
-                openModalWith(<GameOver answer={answer} guesses={guesses} won={isCorrect} hardMode={gameContext.hardMode} />)
-            }, ms * (isCorrect ? 2 : 1))
+                openModalWith(<GameOver answer={answer} guesses={guesses} won={isCorrect} hardMode={gameStateCtx.hardMode} />)
+            }, ms * (isCorrect ? 3 : 1))
         }
 
         if (isGameOver) {
@@ -86,8 +87,8 @@ export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
             <Header openModalWith={openModalWith} />
             <main className="relative top-0 left-0 flex flex-col flex-1 items-center justify-around md:justify-evenly mb-auto">
                 {showTooltip && <Tooltip text={message?.text ?? ''} code={message?.code} />}
-                <GameGrid guesses={gameState.guesses} currentGuess={gameState.currentGuess} />
-                <Keyboard updateGuess={updateGuess} isModalVisible={showModal} />
+                <GameGrid guesses={gameState.guesses} currentGuess={gameState.currentGuess} loading={gameLoading} />
+                <Keyboard updateGuess={updateGuess} isModalVisible={showModal} loading={gameLoading} gameOver={hasGameEnded} />
             </main>
             <Footer />
             {(showModal) && (

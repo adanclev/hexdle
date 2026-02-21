@@ -3,20 +3,28 @@ import type { HexData, HexDigit } from "@/features/game/types";
 import { STATUSES, MAX_GUESSES } from "@/features/game/constants";
 import type { GameStatus } from "@/types";
 
-export function getGameInfo() {
+export function getGameNumber(dateStr: string) {
     const startDate = new Date('2025-06-26');
+    const dateObj = new Date(dateStr)
+    
+    startDate.setHours(0, 0, 0, 0);
+    dateObj.setHours(0, 0, 0, 0);
+    
+    const diff = dateObj.getTime() - startDate.getTime();
+    const daysPassed = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    return daysPassed + 1;
+}
+
+export function getGameInfo() {
     const today = new Date();
     const months = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
 
-    startDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
     const todayToString = `${months[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
-
-    const diff = today.getTime() - startDate.getTime();
-    const daysPassed = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const gameNumber = daysPassed + 1;
+    const gameNumber = getGameNumber(today.toISOString().split('T')[0])
 
     return { gameNumber, todayToString };
 }
@@ -41,7 +49,11 @@ function getHexEmoji(char: HexDigit): string {
     return '🟩';
 }
 
-export function generateShareText({ guesses, isWin, hardMode }: { guesses: HexData[]; isWin: boolean, hardMode: boolean }) {
+export function generateShareText(
+    guesses: HexData[],
+    isWin: boolean,
+    hardMode: boolean,
+): string {
     const { gameNumber } = getGameInfo();
     const hexEmojis: string[] = []
 
@@ -55,7 +67,10 @@ export function generateShareText({ guesses, isWin, hardMode }: { guesses: HexDa
     return `Hexdle No. ${gameNumber} ${attempts}\n\n${hexEmojis.join('\n')}`
 }
 
-export function getGameSubtitle({ status, guesses }: { status: GameStatus | null, guesses: string[] }) {
+export function getGameSubtitle(
+    status: GameStatus | null,
+    guesses: string[],
+): string {
   const isGameOver = status && status !== GAME_STATUSES.IN_PROGRESS
   const attempts = guesses?.length ?? 0
 
@@ -69,3 +84,11 @@ export function getGameSubtitle({ status, guesses }: { status: GameStatus | null
 
   return `You've made ${attempts} of ${MAX_GUESSES} guesses. Keep it up!`
 }
+
+// localStorage.setItem("hexdle_game_state", JSON.stringify({
+//   boardState: ["535835", "8A6645", "DCA445", "AE8245"],
+//   hardMode: false,
+//   darkMode: false,
+//   status: "won",
+//   lastPlayed: "2025-07-07"
+// }));

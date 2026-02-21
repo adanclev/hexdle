@@ -1,4 +1,12 @@
-import type { Rule, Example, StoredGameState, GameStats } from "@/types";
+import type { Rule, Example, GameStateCtx, GameStats, ViewsMap } from "@/types";
+
+export const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'] as const;
+
+export const RGB_COLORS = {
+    RED: 'red',
+    GREEN: 'green',
+    BLUE: 'blue'
+} as const;
 
 export const rules: Rule[] = [
     {
@@ -49,12 +57,12 @@ export const examples: Example[] = [
         hex: "FF5733",
         characters: [
             {
-                character: "F",
+                character: "f",
                 color: "red",
                 status: "high"
             },
             {
-                character: "F"
+                character: "f"
             },
             {
                 character: "5"
@@ -102,11 +110,12 @@ export const examples: Example[] = [
     }
 ]
 
-export const defaultGameState: StoredGameState = {
+export const defaultGameState: GameStateCtx = {
     boardState: [],
     hardMode: false,
     darkMode: false,
-    status: null
+    status: null,
+    gameNumber: null,
 }
 
 export const defaultGameStats: GameStats = {
@@ -122,7 +131,8 @@ export const defaultGameStats: GameStats = {
         "5": 0,
         "6": 0
     },
-    currentRow: null
+    currentRow: null,
+    lastPlayedGameNumber: null,
 }
 
 export const GAME_STATUSES = {
@@ -139,3 +149,11 @@ export const feedbackWords: { [key: number]: string[] } = {
     5: ["Solid", "Nice", "Clean", "Steady"],
     6: ["Clutch", "Lucky", "Barely", "Saved", "Phew"]
 };
+
+export const VIEWS: ViewsMap = {
+    SIGN_IN: 'sign_in',
+    SIGN_UP: 'sign_up',
+    FORGOTTEN_PASSWORD: 'forgotten_password',
+    MAGIC_LINK: 'magic_link',
+    UPDATE_PASSWORD: 'update_password',
+} as const;

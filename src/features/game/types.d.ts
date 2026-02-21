@@ -1,3 +1,8 @@
+import { KEYS_ALLOWED } from "@/features/game/constants";
+import type { Digit, RgbColor } from "@/types"
+
+export type AllowedKey = typeof KEYS_ALLOWED[number];
+
 interface HexData {
   hex: string,
   characters: HexDigit[],
@@ -5,9 +10,9 @@ interface HexData {
 }
 
 interface HexDigit {
-    character?: string,
-    color?: 'red' | 'green' | 'blue',
-    status?: 'match' | 'high' | 'low'
+    character: Digit | null,
+    color?: RgbColor,
+    status?: 'match' | 'high' | 'low',
 }
 
 export interface Color extends HexData {

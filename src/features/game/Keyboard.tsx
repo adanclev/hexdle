@@ -1,20 +1,22 @@
 import { useEffect, useRef } from "react"
 import { Key } from "@/features/game/components/Key"
 import { KEYS_ALLOWED } from "@/features/game/constants"
+import type { AllowedKey } from "@/features/game/types";
 
-const keyboard: string[][] = [
+const keyboard: AllowedKey[][] = [
     ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    ['Enter', 'A', 'B', 'C', 'D', 'E', 'F', 'Del']
+    ['enter', 'a', 'b', 'c', 'd', 'e', 'f', 'del']
 ]
 
 interface Props {
-    updateGuess: (keyPressed: string) => void,
+    updateGuess: (keyPressed: AllowedKey) => void,
     isModalVisible: boolean,
+    loading: boolean,
+    gameOver: boolean,
 }
 
-export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
+export const Keyboard = ({ updateGuess, isModalVisible, loading, gameOver }: Props) => {
     const pressedKeys = useRef<Set<string>>(new Set())
-
     useEffect(() => {
         if (!isModalVisible) {
             window.addEventListener('keydown', handleKeyDown)
@@ -24,15 +26,32 @@ export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
             window.removeEventListener('keydown', handleKeyDown)
             window.removeEventListener('keyup', handleKeyUp)
         }
-    }, [updateGuess])
+    }, [isModalVisible, updateGuess])
+
+    const normalizeKey = (key: string) => {
+        const keyPressed = key.toLowerCase()
+        if (keyPressed === "backspace" || keyPressed === "delete") return 'del';
+        return keyPressed;
+    }
+
+    const isAllowedKey = (key: string): key is AllowedKey => {
+        return KEYS_ALLOWED.includes(key as AllowedKey);
+    }
 
     const onPress = (value: string) => {
-        updateGuess(value.toUpperCase())
+        if (loading || gameOver) return;
+
+        const keyPressed = normalizeKey(value)
+        if (isAllowedKey(keyPressed)) {
+            updateGuess(keyPressed)
+        }
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-        const keyPressed = event.key.toUpperCase()
-        if (KEYS_ALLOWED.includes(keyPressed)) {
+        if (loading || gameOver) return;
+
+        const keyPressed = normalizeKey(event.key);
+        if (isAllowedKey(keyPressed)) {
             if (pressedKeys.current.has(keyPressed)) return;
 
             pressedKeys.current.add(keyPressed)
@@ -41,9 +60,9 @@ export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
-        const keyPressed = event.key.toUpperCase()
+        const keyPressed = normalizeKey(event.key)
 
-        if (KEYS_ALLOWED.includes(keyPressed)) {
+        if (isAllowedKey(keyPressed)) {
             pressedKeys.current.delete(keyPressed)
         }
     }
@@ -57,8 +76,8 @@ export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
                     key={idx} 
                     className="grid auto-cols-max grid-flow-col w-full justify-center gap-1.5 md:gap-2"
                 >
-                    {keys.map((keyName) => (
-                        <Key key={keyName} keyName={keyName} special={['Enter', 'Del'].includes(keyName)} onPress={onPress} />
+                    {keys.map((keyName: AllowedKey) => (
+                        <Key key={keyName} keyName={keyName} special={['enter', 'del'].includes(keyName)} onPress={onPress} />
                     ))}
                 </div>
             ))
