@@ -1,13 +1,18 @@
-import { useContext } from "react"
-import { GameContext } from "@/context/GameObjectContext"
-import { MSG_TYPE, MSG_CODE } from '@/features/game/constants'
-import {useSession} from "@/context/AuthContext";
 import {useNavigate} from "react-router";
+import {useSession} from "@/context/AuthContext";
+import { useGameState } from "@/context/GameContext";
+import { MSG_TYPE, MSG_CODE } from '@/features/game/constants'
 
 export const Settings = () => {
-    const { gameContext, toggleTheme, toggleDifficult } = useContext(GameContext)
+    const { gameStateCtx, toggleTheme, toggleDifficult } = useGameState()
     const { session, signOut } = useSession();
+    const { status, hardMode, darkMode } = gameStateCtx;
     const navigate = useNavigate();
+
+    const softReload = () => {
+        navigate("/", { replace: true });
+        window.location.reload();
+    };
 
     return (
         <section className="w-full sm:w-[350px] h-fit text-primary-light dark:text-primary-dark">
@@ -20,18 +25,21 @@ export const Settings = () => {
                     title="Hard Mode"
                     description="Each guess is evaluated in pairs of hexadecimal digits."
                 >
-                    <ToggleSwitch isGameStarted={!!gameContext?.status} flag={gameContext.hardMode} toggleFunc={toggleDifficult} />
+                    <ToggleSwitch isGameStarted={!!status} flag={hardMode} toggleFunc={toggleDifficult} />
                 </Setting>
                 <Setting
                     title="Dark Mode"
                 >
-                    <ToggleSwitch flag={gameContext.darkMode} toggleFunc={toggleTheme} />
+                    <ToggleSwitch flag={darkMode} toggleFunc={toggleTheme} />
                 </Setting>
                 {session
                     ? <Setting
                         title="Log out"
                     >
-                        <button className="cursor-pointer" onClick={signOut}>
+                        <button type="button" className="cursor-pointer" onClick={async () => {
+                            await signOut();
+                            softReload();
+                        }}>
                             <svg className="size-8 md:size-10" viewBox="0 0 24 24" fill="None">
                                 <path d="M16.5 15V19.5H5.5V5.5H16.5V10M10 12.5H22.5" stroke="currentColor" strokeWidth="1.2"/>
                                 <path d="M20 10L22.5 12.5L20 15" stroke="currentColor" strokeWidth="1.2"/>
@@ -88,7 +96,7 @@ interface SwitchProps {
 }
 
 const ToggleSwitch = ({ isGameStarted, flag, toggleFunc }: SwitchProps) => {
-    const { updateMessage } = useContext(GameContext)
+    const { updateMessage } = useGameState()
     const bgColor = !flag && isGameStarted // Hard mode condition
         ? 'bg-gray-300 dark:bg-gray-600'
         : flag
@@ -116,5 +124,3 @@ const ToggleSwitch = ({ isGameStarted, flag, toggleFunc }: SwitchProps) => {
         </div>
     )
 }
-
-

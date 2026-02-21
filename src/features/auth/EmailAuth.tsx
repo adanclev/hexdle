@@ -1,40 +1,32 @@
 import {type RegisterFormData, type LoginFormData} from "@/features/auth/utils/validation";
-import type { ViewType } from '@/types';
 import { VIEWS } from "@/constants";
-import { SupabaseClient } from "@supabase/supabase-js";
 import { SignUp } from "@/features/auth/SignUp";
 import { SignIn } from "@/features/auth/SignIn";
-
-interface Props {
-    authView: ViewType,
-    supabaseClient: SupabaseClient,
-}
+import {useParams} from "react-router";
+import {useEffect, useState} from "react";
+import type {ViewType} from "@/types";
+import {registerWithEmail, signInWithPassword} from "@/features/auth/services/auth.service.ts";
 
 type AuthData = RegisterFormData | LoginFormData
 
-export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
+export const EmailAuth = () => {
+    const { view } = useParams();
+    const [authView, setAuthView] = useState<ViewType>(VIEWS.SIGN_IN);
+
+    useEffect(() => setAuthView(view as ViewType), [view]);
+
     const onSubmit = async (data: AuthData) => {
         if (authView === VIEWS.SIGN_IN) {
-            const {error} = await supabaseClient.auth.signInWithPassword({
-                email: data.email,
-                password: data.password,
-            })
+            const {error} = await signInWithPassword(data)
 
             if (error) throw new Error(error.message)
-            return
+            return;
         }
 
         if (authView === VIEWS.SIGN_UP) {
             const registerData = data as RegisterFormData
 
-            const {data: signUpData, error} =
-                await supabaseClient.auth.signUp({
-                    email: registerData.email,
-                    password: registerData.password,
-                    options: {
-                        data: {display_name: registerData.name},
-                    },
-                })
+            const { data: signUpData, error } = await registerWithEmail(registerData)
 
             if (error) throw new Error(error.message)
             if (!signUpData.user) throw new Error('User not created')
@@ -48,9 +40,19 @@ export const EmailAuth = ({ authView='sign_in', supabaseClient }: Props) => {
 
     switch(authView) {
         case VIEWS.SIGN_UP:
-            return <SignUp onSubmitClick={onSubmit} />
+            return (
+                <>
+                    <title>Create account - #Hexdle</title>
+                    <SignUp onSubmitClick={onSubmit} />
+                </>
+            )
         case VIEWS.SIGN_IN:
-            return <SignIn onSubmitClick={onSubmit} />
+            return (
+                <>
+                    <title>Log in with password - #Hexdle</title>
+                    <SignIn onSubmitClick={onSubmit} />
+                </>
+            )
         default:
             return null;
     }

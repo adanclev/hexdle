@@ -1,24 +1,25 @@
-import { useEffect, useState, useContext, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useGameState } from "@/context/GameContext";
+import { Header, Footer, Modal, Tooltip } from "@/components"
 import { GameInstructions } from "@/components/modals/GameInstructions";
 import { GameOver } from "@/components/modals/GameOver";
-import { Header, Footer, Modal } from "@/components"
 import { Stats } from "@/components/modals/Stats";
-import { Tooltip } from "@/components/Tooltip"
-import { GameGrid } from "@/features/game/GameGrid"
-import { Keyboard } from "@/features/game/Keyboard";
+import { GameGrid, Keyboard } from "@/features/game"
 import { useGame } from "@/features/game/hooks/useGame";
-import { getDailyRandomElement } from "@/features/game/lib/randomUtils"
 import { MAX_DIGITS, defaultTileDelay, MSG_CODE, MSG_TYPE, MAX_GUESSES } from "@/features/game/constants"
-import { GameContext } from "@/context/GameObjectContext";
 import { GAME_STATUSES } from "@/constants";
+import { getDailyRandomElement } from "@/features/game/lib/randomUtils"
 import { getFeedbackWord, todayToString } from "@/lib/getGameInfo";
 
-export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
+export const Game = () => {
     const todayStr: string = todayToString();
     const dailyColor = useMemo(() => getDailyRandomElement(todayStr), [todayStr]);
+    const { gameStateCtx, message, updateMessage, gameLoading } = useGameState()
     const { updateGuess, gameState, hasGameJustFinished } = useGame(dailyColor)
-    const { gameContext, message, updateMessage } = useContext(GameContext)
-    const [showModal, setShowModal] = useState<boolean>(gameContext?.status !== GAME_STATUSES.IN_PROGRESS);
+    const hasGameEnded = gameStateCtx.status
+        ? gameStateCtx.status !== GAME_STATUSES.IN_PROGRESS
+        : false
+    const [showModal, setShowModal] = useState<boolean>(hasGameEnded);
     const [isClosing, setIsClosing] = useState<boolean>(false);
     const [modalContent, setModalContent] = useState<React.ReactNode>(
         hasGameEnded
@@ -34,7 +35,7 @@ export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
 
         if (isGameOver && hasGameJustFinished) {
             setTimeout(() => {
-                openModalWith(<GameOver answer={answer} guesses={guesses} won={isCorrect} hardMode={gameContext.hardMode} />)
+                openModalWith(<GameOver answer={answer} guesses={guesses} won={isCorrect} hardMode={gameStateCtx.hardMode} />)
             }, ms * (isCorrect ? 3 : 1))
         }
 
@@ -86,8 +87,8 @@ export const Game = ({ hasGameEnded }: { hasGameEnded: boolean }) => {
             <Header openModalWith={openModalWith} />
             <main className="relative top-0 left-0 flex flex-col flex-1 items-center justify-around md:justify-evenly mb-auto">
                 {showTooltip && <Tooltip text={message?.text ?? ''} code={message?.code} />}
-                <GameGrid guesses={gameState.guesses} currentGuess={gameState.currentGuess} />
-                <Keyboard updateGuess={updateGuess} isModalVisible={showModal} />
+                <GameGrid guesses={gameState.guesses} currentGuess={gameState.currentGuess} loading={gameLoading} />
+                <Keyboard updateGuess={updateGuess} isModalVisible={showModal} loading={gameLoading} gameOver={hasGameEnded} />
             </main>
             <Footer />
             {(showModal) && (

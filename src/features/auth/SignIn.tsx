@@ -34,12 +34,7 @@ export const SignIn = ({ onSubmitClick }: Props) => {
     });
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState('');
-    const [childrenAdvice, setChildrenAdvice] = useState<React.ReactNode>(
-        <AuthRedirectText
-            onRedirect={() => navigate("/auth/sign_up")}
-            authView={VIEWS.SIGN_IN}
-        />
-    );
+    const [childrenAdvice, setChildrenAdvice] = useState<React.ReactNode>(<></>);
 
     useEffect(() => {
         dispatch({ type: "START", animation: "animate-flip-in" })
@@ -51,9 +46,9 @@ export const SignIn = ({ onSubmitClick }: Props) => {
     }, [error]);
 
     const onSubmit = async (data: LoginFormData) => {
-        setError('')
+        setError('');
+        setLoading(true);
 
-        setLoading(true)
         try {
             await onSubmitClick(data);
             navigate("/");

@@ -1,3 +1,4 @@
-export * from './Header.tsx';
-export * from './Footer.tsx';
-export * from './Modal.tsx';
+export * from '@/components/Header';
+export * from '@/components/Footer';
+export * from '@/components/Modal';
+export { Tooltip } from "@/components/Tooltip";

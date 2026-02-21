@@ -3,7 +3,7 @@ import './styles/global.css'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router'
 import { GameStateProvider } from './context/GameContext'
-import { AuthProvider } from "@/context/AuthContext.tsx";
+import { AuthProvider } from "@/context/AuthContext";
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>

@@ -36,12 +36,7 @@ export const SignUp = ({onSubmitClick}: Props) => {
     });
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState('');
-    const [childrenAdvice, setChildrenAdvice] = useState<React.ReactNode>(
-        <AuthRedirectText
-            onRedirect={() => navigate("/auth/sign_in")}
-            authView={VIEWS.SIGN_UP}
-        />
-    );
+    const [childrenAdvice, setChildrenAdvice] = useState<React.ReactNode>(<></>);
 
     useEffect(() => {
         dispatch({ type: "START", animation: "animate-flip-in" })
@@ -56,7 +51,6 @@ export const SignUp = ({onSubmitClick}: Props) => {
 
     const onSumbit = async (data: RegisterFormData) => {
         setLoading(true);
-
         setError('');
         try {
             await onSubmitClick(data);
@@ -68,7 +62,6 @@ export const SignUp = ({onSubmitClick}: Props) => {
         } finally {
             setLoading(false);
         }
-
     }
 
     const password = watch('password')
@@ -114,6 +107,7 @@ export const SignUp = ({onSubmitClick}: Props) => {
                             Password
                         </label>
                         <button
+                            tabIndex={-1}
                             type="button"
                             className="tracking-widest underline mr-2 cursor-pointer text-[12px]"
                             onClick={() => {
@@ -128,6 +122,7 @@ export const SignUp = ({onSubmitClick}: Props) => {
                     <input
                         type={showPwd.pwd ? "text" : "password"}
                         className={`input-form ${errors.password ? 'invalid' : ''}`}
+
                         id="password"
                         {...register('password')}
                     />
@@ -143,6 +138,7 @@ export const SignUp = ({onSubmitClick}: Props) => {
                             Confirm Password
                         </label>
                         <button
+                            tabIndex={-1}
                             type="button"
                             className="tracking-widest underline mr-2 cursor-pointer text-[12px]"
                             onClick={() => {

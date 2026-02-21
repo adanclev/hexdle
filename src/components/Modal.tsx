@@ -14,11 +14,12 @@ export const Modal = ({ children, onClose, isClosing }: Props) => {
 
     useEffect(() => {
         if (isClosing) {
-            setIsModalVisible(false)
+            setIsModalVisible(false);
         } else{
-        setTimeout(() => {
-            setIsModalVisible(true);
-        }, 200);}
+            setTimeout(() => {
+                setIsModalVisible(true);
+            }, 200);
+        }
     }, [isClosing])
 
     const overlayClass = isModalVisible

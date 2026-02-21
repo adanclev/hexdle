@@ -11,9 +11,11 @@ const keyboard: AllowedKey[][] = [
 interface Props {
     updateGuess: (keyPressed: AllowedKey) => void,
     isModalVisible: boolean,
+    loading: boolean,
+    gameOver: boolean,
 }
 
-export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
+export const Keyboard = ({ updateGuess, isModalVisible, loading, gameOver }: Props) => {
     const pressedKeys = useRef<Set<string>>(new Set())
     useEffect(() => {
         if (!isModalVisible) {
@@ -37,6 +39,8 @@ export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
     }
 
     const onPress = (value: string) => {
+        if (loading || gameOver) return;
+
         const keyPressed = normalizeKey(value)
         if (isAllowedKey(keyPressed)) {
             updateGuess(keyPressed)
@@ -44,6 +48,8 @@ export const Keyboard = ({ updateGuess, isModalVisible }: Props) => {
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+        if (loading || gameOver) return;
+
         const keyPressed = normalizeKey(event.key);
         if (isAllowedKey(keyPressed)) {
             if (pressedKeys.current.has(keyPressed)) return;

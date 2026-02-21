@@ -198,6 +198,9 @@ html {
 }
 
 .btn-splash-page {
+    /*@apply cursor-pointer select-none;*/
+    /*@apply duration-500 transition-colors hover:text-light-100 hover:bg-light-400;*/
+    /*@apply active:bg-light-400 active:text-light-100;*/
     @apply py-2 rounded-full text-xl md:text-2xl w-50;
 }
 
@@ -282,15 +285,15 @@ html {
             var(--color-byzantine-blue) 65%,
             var(--color-lime-green) 85%);
 
-    @variant dark {
-        background: linear-gradient(110deg,
-                var(--color-primary-dark) 0%,
-                var(--color-primary-dark) 38%,
-                #fdfdfd 40%,
-                var(--color-imperial-red) 55%,
-                var(--color-byzantine-blue) 65%,
-                var(--color-lime-green) 85%);
-    }
+    /*@variant dark {*/
+    /*    background: linear-gradient(110deg,*/
+    /*            var(--color-primary-dark) 0%,*/
+    /*            var(--color-primary-dark) 38%,*/
+    /*            #fdfdfd 40%,*/
+    /*            var(--color-imperial-red) 55%,*/
+    /*            var(--color-byzantine-blue) 65%,*/
+    /*            var(--color-lime-green) 85%);*/
+    /*}*/
 
     background-size: 250%;
     -webkit-background-clip: text;

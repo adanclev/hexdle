@@ -49,7 +49,11 @@ function getHexEmoji(char: HexDigit): string {
     return '🟩';
 }
 
-export function generateShareText({ guesses, isWin, hardMode }: { guesses: HexData[]; isWin: boolean, hardMode: boolean }) {
+export function generateShareText(
+    guesses: HexData[],
+    isWin: boolean,
+    hardMode: boolean,
+): string {
     const { gameNumber } = getGameInfo();
     const hexEmojis: string[] = []
 
@@ -63,7 +67,10 @@ export function generateShareText({ guesses, isWin, hardMode }: { guesses: HexDa
     return `Hexdle No. ${gameNumber} ${attempts}\n\n${hexEmojis.join('\n')}`
 }
 
-export function getGameSubtitle({ status, guesses }: { status: GameStatus | null, guesses: string[] }) {
+export function getGameSubtitle(
+    status: GameStatus | null,
+    guesses: string[],
+): string {
   const isGameOver = status && status !== GAME_STATUSES.IN_PROGRESS
   const attempts = guesses?.length ?? 0
 

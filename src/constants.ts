@@ -1,4 +1,4 @@
-import type { Rule, Example, StoredGameState, GameStats, ViewsMap } from "@/types";
+import type { Rule, Example, GameStateCtx, GameStats, ViewsMap } from "@/types";
 
 export const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'] as const;
 
@@ -110,11 +110,12 @@ export const examples: Example[] = [
     }
 ]
 
-export const defaultGameState: StoredGameState = {
+export const defaultGameState: GameStateCtx = {
     boardState: [],
     hardMode: false,
     darkMode: false,
-    status: null
+    status: null,
+    gameNumber: null,
 }
 
 export const defaultGameStats: GameStats = {
@@ -130,7 +131,8 @@ export const defaultGameStats: GameStats = {
         "5": 0,
         "6": 0
     },
-    currentRow: null
+    currentRow: null,
+    lastPlayedGameNumber: null,
 }
 
 export const GAME_STATUSES = {

@@ -1,9 +1,9 @@
-import type { StoredGameState, GameStats } from "@/types"
+import type { GameStateCtx, GameStats } from "@/types"
 
 const statsKey = 'hexdle_game_stats'
 const stateKey = 'hexdle_game_state'
 
-export const saveGameStateToLocalStorage = (gameState: StoredGameState) => {
+export const saveGameStateToLocalStorage = (gameState: GameStateCtx) => {
     try {
         if (typeof window === 'undefined') return;
         const serialized = JSON.stringify(gameState);
@@ -17,7 +17,7 @@ export const loadGameStateFromLocalStorage = () => {
     try {
         if (typeof window === 'undefined') return null;
         const data = localStorage.getItem(stateKey);
-        return data ? (JSON.parse(data) as StoredGameState) : null;
+        return data ? (JSON.parse(data) as GameStateCtx) : null;
     } catch (error) {
         console.warn(`Error loading from localStorage with key "${stateKey}":`, error);
         return null;

@@ -13,7 +13,7 @@ interface Props {
 export const GameOver = ({ answer, guesses, won, hardMode }: Props) => {
     const { hex, name } = answer
     const color = `#${hex}`
-    const shareResultText = generateShareText({ guesses, isWin: won, hardMode })
+    const shareResultText = generateShareText(guesses, won, hardMode)
     const resultMessage = won
         ? 'Congratulations!'
         : 'Thanks for playing today!'
@@ -45,7 +45,7 @@ export const GameOver = ({ answer, guesses, won, hardMode }: Props) => {
                 <>
                     <p
                         className="text-[16px] md:text-[18px]"
-                    >You found the color: <span className="font-bold" style={{ color: color }}>{color}</span></p>
+                    >You found the color: <span className="font-bold uppercase" style={{ color: color }}>{color}</span></p>
                     <p>
                         Name of color: <span className="font-semibold" style={{ color: color }}>{name}</span>
                     </p>

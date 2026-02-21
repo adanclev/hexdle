@@ -1,8 +1,8 @@
 import type { GameState, Color, HexData, HexDigit, AllowedKey } from '@/features/game/types'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { initialGuess, MAX_DIGITS, STATUSES, MAX_GUESSES, MSG_TYPE, MSG_CODE } from '@/features/game/constants'
 import { DIGITS } from "@/constants";
-import { GameContext } from '@/context/GameObjectContext'
+import{useGameState} from "@/context/GameContext";
 import { GAME_STATUSES } from '@/constants'
 import type {Digit, GameStats} from '@/types'
 
@@ -12,16 +12,16 @@ const initialState = (answer: Color): GameState => ({
     guesses: [],
     isGameOver: false,
     isCorrect: false,
-    remainingGuesses: 6,
+    remainingGuesses: MAX_GUESSES,
 })
 
 export const useGame = (answer: Color) => {
+    const { gameStateCtx, gameStats, updateMessage, updateGameState, updateGameStats } = useGameState()
     const [gameState, setGameState] = useState<GameState>(initialState(answer))
     const [hasGameJustFinished, setHasGameJustFinished] = useState(false);
-    const { gameContext, gameStats, updateMessage, updateGameContext, updateGameStats } = useContext(GameContext)
 
     useEffect(() => {
-        const savedGuesses = gameContext.boardState
+        const savedGuesses = gameStateCtx.boardState;
         if (savedGuesses.length > 0) {
             const { loadedGuesses, isCorrect } = loadState(savedGuesses)
             const remainingGuesses = MAX_GUESSES - savedGuesses.length
@@ -37,7 +37,7 @@ export const useGame = (answer: Color) => {
 
             }))
         }
-    }, [])
+    }, [gameStateCtx.boardState])
 
     function loadState(savedGuesses: string[]) {
         const loadedGuesses: HexData[] = []
@@ -71,7 +71,7 @@ export const useGame = (answer: Color) => {
     function checkGuess(currentGuess: HexData) {
         const { hex: answerHex, characters: answerChars } = gameState.answer
         const { hex: currentHex, characters: currentChars } = currentGuess
-        const step = gameContext.hardMode ? 2 : 1
+        const step = gameStateCtx.hardMode ? 2 : 1
 
         if (!hasNoNullCharacters(answerChars) || !hasNoNullCharacters(currentChars)) {
             return {
@@ -89,7 +89,7 @@ export const useGame = (answer: Color) => {
                 const idxCurrentChar = DIGITS.indexOf(currentChars[i].character)
                 const idxAnswerChar = DIGITS.indexOf(answerChars[i].character)
 
-                if (gameContext.hardMode && i + 1 < currentChars.length) {
+                if (gameStateCtx.hardMode && i + 1 < currentChars.length) {
                     const idx2CurrentChar = DIGITS.indexOf(currentChars[i + 1].character)
                     const idx2AnswerChar = DIGITS.indexOf(answerChars[i + 1].character)
                     const diff = (idxCurrentChar ** 2 + idx2CurrentChar) - (idxAnswerChar ** 2 + idx2AnswerChar)
@@ -187,9 +187,9 @@ export const useGame = (answer: Color) => {
             remainingGuesses
         }))
 
-        updateGameContext(updateGuesses, updateStatus) // save to local storage too
+        updateGameState(updateGuesses, updateStatus, answer) // save to local storage or db
 
-        if (isGameOver) { // save stats to local storage
+        if (isGameOver) { // save stats to local storage or db
             setHasGameJustFinished(true)
             const { gamesPlayed, currentStreak, maxStreak, gamesWon, guesses } = gameStats
             const newStats: GameStats = {
@@ -201,7 +201,8 @@ export const useGame = (answer: Color) => {
                     : maxStreak,
                 gamesWon: isCorrect ? gamesWon + 1 : gamesWon,
                 guesses: { ...guesses },
-                currentRow: isCorrect ? MAX_GUESSES - remainingGuesses : null
+                currentRow: isCorrect ? MAX_GUESSES - remainingGuesses : null,
+                lastPlayedGameNumber: gameStateCtx.gameNumber,
             }
 
             if (isCorrect) {
@@ -233,14 +234,14 @@ export const useGame = (answer: Color) => {
     }
 
     function handleDigitInput(key: Digit) {
-        const { hex, characters } = gameState.currentGuess
+        const { hex, characters } = gameState.currentGuess;
 
         if (hex.length >= MAX_DIGITS) return;
 
         const newCharacters = characters.map((char, i) =>
             i === hex.length ? { ...char, character: key } : char
-        )
-        const newHex = newCharacters.map((char) => char.character).join('')
+        );
+        const newHex = newCharacters.map((char) => char.character).join('');
 
         setGameState(prev => ({
             ...prev,

@@ -37,7 +37,7 @@ export const STATUSES = {
 export const MSG_TYPE = {
     ERROR: 'error',
     INFO: 'info',
-    SUCCESS: 'success'
+    SUCCESS: 'success',
 }
 
 export const MSG_CODE = {
@@ -45,7 +45,8 @@ export const MSG_CODE = {
     GAME_OVER: 'game-over',
     WIN: 'win',
     INVALID_INPUT: 'invalid-input',
-    HARD_MODE: 'hard-mode'
+    HARD_MODE: 'hard-mode',
+    SAVE_ERROR: 'save-error',
 }
 
 export const initialGuess: HexData = {
