@@ -255,15 +255,9 @@ export const useGame = (answer: Color) => {
     const updateCurrentGuess = (keyPressed: AllowedKey) => {
         if (gameState.isGameOver) return;
 
-        if (keyPressed === 'enter') {
-            handleEnter()
-            return
-        }
+        if (keyPressed === 'enter') return handleEnter();
 
-        if (keyPressed === 'del') {
-            handleDelete()
-            return
-        }
+        if (keyPressed === 'del') return handleDelete();
 
         handleDigitInput(keyPressed)
     }
