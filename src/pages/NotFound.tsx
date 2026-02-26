@@ -20,12 +20,12 @@ export const NotFound = () => {
                             delay={idx * defaultTileDelay}
                             animation={'animate-flip-in'}
                         >
-                            <p className="text-[60px] px-4">{num}</p>
+                            <p className="text-[48px] md:text-[60px] px-4">{num}</p>
                         </TileView>
                     )}
                 </section>
-                <h2 className="text-[40px]">Page Not Found</h2>
-                <p className="text-[20px] text-center mb-2">
+                <h2 className="text-[32px] md:text-[40px] text-center">Page Not Found</h2>
+                <p className="text-[16px] md:text-[20px] text-center mb-2">
                     Sorry, but the page you are trying to reach cannot be found.
                 </p>
                 <Link className="btn bg-light-300 rounded-full py-2 px-6 text-base dark:bg-dark-300" to={"/"}>
